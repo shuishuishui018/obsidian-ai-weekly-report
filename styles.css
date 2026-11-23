@@ -1,0 +1,14 @@
+/* AI Weekly Report — only the few tweaks Obsidian's native settings can't express */
+
+.ai-weekly-report-prompt {
+  width: 100%;
+  min-height: 10em;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.ai-weekly-report-settings .setting-item-description {
+  line-height: 1.6;
+}

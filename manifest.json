@@ -1,0 +1,10 @@
+{
+  "id": "ai-weekly-report",
+  "name": "AI Weekly Report",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Collect notes from a period and let an OpenAI-compatible model turn scattered work logs into a structured weekly report.",
+  "author": "shuishuishui018",
+  "authorUrl": "https://github.com/shuishuishui018",
+  "isDesktopOnly": false
+}
