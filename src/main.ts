@@ -86,6 +86,10 @@ export default class AiWeeklyReportPlugin extends Plugin {
     try {
       const result = await generateWeeklyReport(this.app, this.settings, (text) => this.setStatus(text));
       this.clearStatus();
+      if (result.skipped) {
+        new Notice("本周周报已存在，已跳过", 6000);
+        return;
+      }
       new Notice(`已生成《${result.title}》（汇总 ${result.docCount} 篇素材）`, 8000);
 
       if (this.settings.output.openAfterCreate && result.file) {

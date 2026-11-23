@@ -1,3 +1,5 @@
+import { DEFAULT_TITLE_TEMPLATE } from "./week";
+
 export type RangeMode = "thisWeek" | "lastWeek" | "lastNDays" | "custom";
 
 export interface AISettings {
@@ -22,12 +24,14 @@ export interface RangeSettings {
   customEnd: string;
 }
 
+export type ExistingReportMode = "skip" | "overwrite" | "suffix";
+
 export interface OutputSettings {
   folder: string;
   titleTemplate: string;
   openAfterCreate: boolean;
   writeProvenance: boolean;
-  overwrite: boolean;
+  existing: ExistingReportMode;
 }
 
 export interface PromptSettings {
@@ -91,10 +95,10 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   output: {
     folder: "AI周报",
-    titleTemplate: "{{YYYY}}-W{{WW}} 工作周报",
+    titleTemplate: DEFAULT_TITLE_TEMPLATE,
     openAfterCreate: true,
     writeProvenance: true,
-    overwrite: false,
+    existing: "skip",
   },
   prompt: {
     system: DEFAULT_SYSTEM_PROMPT,

@@ -60,8 +60,8 @@
 | Excluded keywords | 路径命中即跳过，建议保留账号密码类词汇 |
 | Period | 本周 / 上一周 / 最近 N 天 / 自定义区间 |
 | Target folder | 输出目录，不存在会自动创建 |
-| Title template | 支持 `{{YYYY}}`、`{{WW}}`、`{{start}}`、`{{end}}` |
-| Overwrite an existing report | 关闭时同名文件会自动加序号，不覆盖 |
+| Title template | 占位符：`{{YYYY}}`（ISO 年）、`{{WW}}`（两位周数）、`{{W}}`（周数）、`{{start}}` / `{{end}}`（`2026-11-16` / `2026-11-22`）、`{{startCn}}`（`2026年11月16日`）、`{{endCn}}`（相对开始日期化简为 `22日`、`11月1日` 或 `2026年1月4日`）。默认值：`工作周报 {{YYYY}}-W{{WW}}（{{startCn}}-{{endCn}}）` |
+| Existing report for the same week | skip（默认）：不调用模型、不写文件；overwrite：直接覆盖；suffix：同名文件加序号另建一篇 |
 | Append source information | 文末标注素材篇数、周期与生成时间 |
 
 ## 隐私与网络
@@ -78,6 +78,12 @@ npm install
 npm run dev     # esbuild 监听
 npm run build   # 类型检查 + 生产构建（main.js）
 ```
+
+## 支持作者
+
+如果这个插件帮你节省了时间，欢迎扫码请我喝杯咖啡。
+
+![打赏二维码](assets/donation-qr.png)
 
 ## 许可
 

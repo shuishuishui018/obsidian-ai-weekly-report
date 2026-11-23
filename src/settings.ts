@@ -5,14 +5,22 @@ import {
   DEFAULT_SETTINGS,
   DEFAULT_SYSTEM_PROMPT,
   DEFAULT_USER_TEMPLATE,
+  type ExistingReportMode,
   type RangeMode,
 } from "./types";
+import { DONATION_QR_DATA_URL } from "./qr";
 
 const MODES: Record<RangeMode, string> = {
   thisWeek: "This week (Mon-Sun)",
   lastWeek: "Last week",
   lastNDays: "Last N days",
   custom: "Custom range",
+};
+
+const EXISTING_MODES: Record<ExistingReportMode, string> = {
+  skip: "Skip - do nothing",
+  overwrite: "Overwrite the existing report",
+  suffix: "Create a new note with a numeric suffix",
 };
 
 export class AiWeeklyReportSettingTab extends PluginSettingTab {
@@ -278,10 +286,14 @@ export class AiWeeklyReportSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Title template")
-      .setDesc("Supports {{YYYY}}, {{WW}} (two-digit ISO week), {{start}}, {{end}}")
+      .setDesc(
+        "Placeholders: {{YYYY}} (ISO year), {{WW}} (two-digit ISO week), {{W}} (ISO week), " +
+          "{{start}} / {{end}} (2026-11-16 / 2026-11-22), " +
+          "{{startCn}} (2026年11月16日), {{endCn}} (22日, 11月1日 or 2026年1月4日, simplified against the start date)",
+      )
       .addText((text) =>
         text
-          .setPlaceholder("{{YYYY}}-W{{WW}} 工作周报")
+          .setPlaceholder("工作周报 {{YYYY}}-W{{WW}}（{{startCn}}-{{endCn}}）")
           .setValue(this.plugin.settings.output.titleTemplate)
           .onChange(async (value) => {
             this.plugin.settings.output.titleTemplate = value.trim();
@@ -299,14 +311,17 @@ export class AiWeeklyReportSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Overwrite an existing report")
-      .setDesc("Off: a new note with a numeric suffix is created instead.")
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.output.overwrite).onChange(async (value) => {
-          this.plugin.settings.output.overwrite = value;
+      .setName("Existing report for the same week")
+      .setDesc("Checked before the model is called. Skip sends no request and writes no file.")
+      .addDropdown((dropdown) => {
+        for (const [value, label] of Object.entries(EXISTING_MODES)) {
+          dropdown.addOption(value, label);
+        }
+        dropdown.setValue(this.plugin.settings.output.existing).onChange(async (value) => {
+          this.plugin.settings.output.existing = value as ExistingReportMode;
           await this.plugin.saveSettings();
-        }),
-      );
+        });
+      });
 
     new Setting(containerEl)
       .setName("Append source information")
@@ -382,5 +397,16 @@ export class AiWeeklyReportSettingTab extends PluginSettingTab {
         "Privacy: the API key and collected note text stay on your machine. Note text is sent only to the AI endpoint you configure above; notes matching the excluded keywords are skipped before anything is read.",
       cls: "setting-item-description",
     });
+
+    // ---- Support ----
+    containerEl.createEl("h3", { text: "Support / 支持作者" });
+    containerEl.createEl("p", {
+      text:
+        "This plugin is free to use. If it saves you time, you can buy me a coffee — scan the code below. 本插件免费使用，如果它帮你节省了时间，欢迎扫码请我喝杯咖啡。",
+      cls: "setting-item-description",
+    });
+    const qr = containerEl.createEl("img", { cls: "donation-qr" });
+    qr.src = DONATION_QR_DATA_URL;
+    qr.alt = "Donation QR code / 打赏二维码";
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "ai-weekly-report",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Obsidian plugin: turn scattered work logs into a structured weekly report with an OpenAI-compatible model",
   "main": "main.js",
   "license": "MIT",

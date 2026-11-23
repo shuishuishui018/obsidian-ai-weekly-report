@@ -12,3 +12,10 @@
 .ai-weekly-report-settings .setting-item-description {
   line-height: 1.6;
 }
+
+.donation-qr {
+  width: 220px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}

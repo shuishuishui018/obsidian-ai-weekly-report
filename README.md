@@ -58,8 +58,8 @@ Notes are capped per note and overall; once the total cap is hit, older notes ar
 | Excluded keywords | Path substring match; matching notes are skipped entirely. |
 | Period | This week / last week / last N days / custom range. |
 | Target folder | Created automatically when missing. |
-| Title template | `{{YYYY}}`, `{{WW}}` (two-digit ISO week), `{{start}}`, `{{end}}`. |
-| Overwrite | Off: a new note with a numeric suffix is created instead of replacing. |
+| Title template | `{{YYYY}}` (ISO year), `{{WW}}` (two-digit ISO week), `{{W}}` (ISO week), `{{start}}` / `{{end}}` (`2026-11-16` / `2026-11-22`), `{{startCn}}` (`2026年11月16日`), `{{endCn}}` (`22日`, `11月1日` or `2026年1月4日`, shortened against the start date). Default: `工作周报 {{YYYY}}-W{{WW}}（{{startCn}}-{{endCn}}）`. |
+| Existing report (same week) | Skip (default): no model request and no file written. Overwrite: replace the note. Suffix: create a new note with a numeric suffix. |
 
 ## Privacy and network use
 
@@ -75,6 +75,12 @@ npm install
 npm run dev     # esbuild watch
 npm run build   # typecheck + production bundle (main.js)
 ```
+
+## Support the author
+
+If this plugin saves you time, you can buy me a coffee.
+
+![Donation QR code](assets/donation-qr.png)
 
 ## License
 

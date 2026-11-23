@@ -177,6 +177,8 @@ export interface GenerateResult {
   title: string;
   docCount: number;
   file: TFile | null;
+  /** true 表示目标文件已存在且策略为 skip：没有请求 AI，也没有写入任何文件 */
+  skipped: boolean;
 }
 
 export async function generateWeeklyReport(
@@ -191,6 +193,28 @@ export async function generateWeeklyReport(
     settings.range.customEnd,
   );
   const title = formatTitle(settings.output.titleTemplate, range) || "工作周报";
+  const folder = normalizePath(settings.output.folder.trim() || "AI周报");
+  const basePath = normalizePath(`${folder}/${sanitizeFileName(title)}.md`);
+
+  // 去重判定前移：在收集素材、调用 AI 之前就决定是否跳过，skip 时零请求、零写入
+  let targetPath = basePath;
+  let existingFile: TFile | null = null;
+  const conflict = app.vault.getAbstractFileByPath(basePath);
+  if (conflict) {
+    if (settings.output.existing === "skip") {
+      log(`${basePath} 已存在，按设置跳过`);
+      return { path: basePath, title, docCount: 0, file: null, skipped: true };
+    }
+    if (settings.output.existing === "overwrite") {
+      existingFile = conflict as TFile;
+    } else {
+      let index = 2;
+      while (app.vault.getAbstractFileByPath(normalizePath(`${folder}/${sanitizeFileName(title)} ${index}.md`))) {
+        index += 1;
+      }
+      targetPath = normalizePath(`${folder}/${sanitizeFileName(title)} ${index}.md`);
+    }
+  }
 
   log(`正在收集 ${range.label} 的素材…`);
   const collected = await collectDocs(app, settings, log);
@@ -217,7 +241,6 @@ export async function generateWeeklyReport(
     markdown += `\n\n---\n\n> 本报告由 AI 汇总 ${collected.docs.length} 篇素材生成于 ${stamp}，周期 ${range.label}。\n`;
   }
 
-  const folder = normalizePath(settings.output.folder.trim() || "AI周报");
   if (!app.vault.getAbstractFileByPath(folder)) {
     try {
       await app.vault.createFolder(folder);
@@ -226,22 +249,13 @@ export async function generateWeeklyReport(
     }
   }
 
-  let targetPath = normalizePath(`${folder}/${sanitizeFileName(title)}.md`);
-  if (app.vault.getAbstractFileByPath(targetPath)) {
-    if (settings.output.overwrite) {
-      const existing = app.vault.getAbstractFileByPath(targetPath) as TFile;
-      await app.vault.modify(existing, markdown);
-      return { path: targetPath, title, docCount: collected.docs.length, file: existing };
-    }
-    let index = 2;
-    while (app.vault.getAbstractFileByPath(normalizePath(`${folder}/${sanitizeFileName(title)} ${index}.md`))) {
-      index += 1;
-    }
-    targetPath = normalizePath(`${folder}/${sanitizeFileName(title)} ${index}.md`);
+  if (existingFile) {
+    await app.vault.modify(existingFile, markdown);
+    return { path: targetPath, title, docCount: collected.docs.length, file: existingFile, skipped: false };
   }
 
   const file = await app.vault.create(targetPath, markdown);
-  return { path: targetPath, title, docCount: collected.docs.length, file };
+  return { path: targetPath, title, docCount: collected.docs.length, file, skipped: false };
 }
 
 export async function testConnection(settings: Settings): Promise<string> {
